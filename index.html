@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DS Costruction | Building with precision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14232f;--steel:#1f4e79;--paper:#f2f6fa;--card:#fff;--line:#d5e0ea;--sky1:#3f7fb5;--sky2:#cfe6f7;--ground:#27506b;--amber:#f2a900;--muted:#55616b;--on-dark:#f3f2ee;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="dark"]{--ink:#3a2a22;--steel:#0f5c63;--paper:#fbf1e6;--card:#fffaf3;--line:#e8d7c3;--muted:#725f52;--amber:#e8742a;--sky1:#6b5a8e;--sky2:#f5b583;--ground:#0c474d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.65 "Public Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Archivo","Arial Narrow",Arial,sans-serif;font-stretch:90%;line-height:1.08;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(2rem,4.5vw,3.2rem);font-weight:800}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+section{padding:92px 0}
+.lead{max-width:62ch;color:var(--muted)}
+/* nav */
+header{position:fixed;top:0;left:0;right:0;z-index:20;padding-top:env(safe-area-inset-top,0px);background:rgba(20,35,47,.92);backdrop-filter:blur(8px);color:var(--on-dark)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font:800 1.25rem "Archivo",sans-serif;text-decoration:none;letter-spacing:.01em}
+.logo i{width:34px;height:34px;background:var(--amber);color:#14232f;display:grid;place-items:center;font-style:normal;font-size:.95rem;clip-path:polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)}
+nav ul{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+nav a{text-decoration:none;font-weight:500;font-size:.96rem;opacity:.85}
+nav a:hover{opacity:1;color:var(--amber)}
+.menu{display:none;background:none;border:1px solid #fff4;color:inherit;border-radius:6px;padding:8px 12px;font:inherit}
+.btn{display:inline-block;background:var(--amber);color:#14232f;font:700 1rem "Archivo",sans-serif;padding:14px 26px;border:0;text-decoration:none;cursor:pointer;clip-path:polygon(0 0,100% 0,100% 70%,92% 100%,0 100%);transition:transform .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:none;color:var(--on-dark);box-shadow:inset 0 0 0 2px #fff6;clip-path:none}
+/* hero carousel */
+.hero{position:relative;min-height:100svh;color:var(--on-dark);overflow:hidden;background:var(--steel)}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity .9s;display:flex;align-items:center;background:linear-gradient(90deg,#15263a 25%,#2a4d6a 50%,#15263a 75%);background-size:200% 100%;animation:shimmer 1.4s linear infinite}
+.slide.on{opacity:1;z-index:1}
+.slide img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;background:transparent;opacity:0;transition:opacity .8s ease}
+.slide img.bg.loaded{opacity:1}
+/* skeleton shimmer — used by .ph wrappers and #lf */
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk{position:relative;overflow:hidden;background:linear-gradient(90deg,#15263a 25%,#2a4d6a 50%,#15263a 75%);background-size:200% 100%;animation:shimmer 1.4s linear infinite}
+.sk.light{background:linear-gradient(90deg,#e2ebf2 25%,#f2f6fa 50%,#e2ebf2 75%);background-size:200% 100%;animation:shimmer 1.4s linear infinite}
+.sk img,.sk.light img{opacity:0;transition:opacity .7s ease}
+.sk img.loaded,.sk.light img.loaded{opacity:1}
+.sk img.err{opacity:1}
+@media (prefers-reduced-motion:reduce){.slide,.sk,.sk.light{animation:none}}
+.slide .wrap{position:relative;padding-top:90px}
+.slide h1{font-size:clamp(2.6rem,7.5vw,5.6rem);font-weight:900;max-width:13ch}
+.slide p{max-width:46ch;font-size:1.15rem;margin:22px 0 32px;opacity:.95}
+.slide.on h1{animation:rise .8s both}.slide.on p,.slide.on .cta{animation:rise .8s .15s both}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+.cta{display:flex;gap:14px;flex-wrap:wrap}
+.ctrl{position:absolute;z-index:3;bottom:34px;left:0;right:0}
+.ctrl .wrap{display:flex;align-items:center;gap:14px}
+.dots{display:flex;gap:8px;flex:1}
+.dots button{width:38px;height:5px;border:0;background:#fff5;cursor:pointer;padding:0;position:relative;overflow:hidden}
+.dots button.on::after{content:"";position:absolute;inset:0;background:var(--amber);transform-origin:left;animation:fill 6s linear}
+.arrow{width:46px;height:46px;border:1px solid #fff6;background:#0003;color:#fff;font-size:1.2rem;cursor:pointer;border-radius:50%}
+.arrow:hover{background:var(--amber);color:#14232f;border-color:var(--amber)}
+@keyframes fill{from{transform:scaleX(0)}}
+/* about */
+.about{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+.about p{color:var(--muted)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.stats div{background:var(--card);padding:26px 22px}
+.stats b{display:block;font:800 2.6rem "Archivo",sans-serif;color:var(--ink)}
+.stats span{color:var(--muted);font-size:.95rem}
+.vals{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:56px}
+.vals div{border-top:4px solid var(--amber);padding-top:16px}
+.vals h3{font-size:1.3rem;margin-bottom:6px}.vals p{margin:0;color:var(--muted);font-size:.97rem}
+/* customized architecture design */
+.dproc{position:relative;margin:56px 0 0;padding-left:64px}
+.dline{position:absolute;left:28px;top:8px;bottom:8px;width:4px;background:var(--line);overflow:hidden;border-radius:2px}
+.dline::after{content:"";display:block;width:100%;height:0;background:repeating-linear-gradient(135deg,var(--amber) 0 10px,#e09a00 10px 20px);transition:height 2.2s cubic-bezier(.2,.8,.2,1)}
+.dproc.in .dline::after{height:100%}
+.dstep{position:relative;padding:0 0 36px;opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.dstep.in{opacity:1;transform:none}
+.dstep:last-child{padding-bottom:0}
+.dstep::before{content:"";position:absolute;left:-44px;top:6px;width:18px;height:18px;border-radius:50%;background:var(--paper);border:3px solid var(--line);z-index:1;transition:background .4s,border-color .4s,transform .4s}
+.dstep.in::before{background:var(--amber);border-color:var(--amber);transform:scale(1.05)}
+.dstep .dnum{font:800 1rem/1 "Archivo",sans-serif;color:var(--amber);display:block;margin-bottom:6px;letter-spacing:.04em}
+.dstep h3{font-size:1.3rem;margin-bottom:6px}
+.dstep p{margin:0;color:var(--muted);max-width:60ch}
+/* style showcase */
+.dshow{margin-top:64px}
+.dshow h3{font-size:1.55rem;margin-bottom:18px}
+.dshow-grid{display:grid;grid-template-columns:260px 1fr;gap:26px;align-items:stretch}
+.dtabs{display:flex;flex-direction:column;gap:10px}
+.dtabs button{display:flex;gap:14px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);padding:8px;border-radius:8px;cursor:pointer;transition:transform .25s ease,border-color .25s,background .25s,box-shadow .25s;font:inherit;color:inherit}
+.dtabs button:hover{transform:translateX(5px);box-shadow:0 6px 16px #0001}
+.dtabs button[aria-pressed="true"]{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 9%,var(--card))}
+.dtabs .ph{width:64px;height:64px;flex:none;border-radius:6px;overflow:hidden;position:relative;background:linear-gradient(90deg,#e2ebf2 25%,#f2f6fa 50%,#e2ebf2 75%);background-size:200% 100%;animation:shimmer 1.4s linear infinite}
+.dtabs .ph img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s}
+.dtabs .ph img.loaded{opacity:1}
+.dtabs .lab{display:flex;flex-direction:column;gap:2px}
+.dtabs .lab b{font:700 1.05rem/1.1 "Archivo",sans-serif;letter-spacing:-.01em}
+.dtabs .lab small{color:var(--muted);font-size:.82rem}
+.dtabs button[aria-pressed="true"] .lab small{color:var(--amber)}
+.dviewer{position:relative;border:1px solid var(--line);background:var(--card);overflow:hidden;display:flex;flex-direction:column;min-height:460px}
+.dviewer .dvph{position:relative;flex:1;min-height:300px;overflow:hidden;background:linear-gradient(90deg,#e2ebf2 25%,#f2f6fa 50%,#e2ebf2 75%);background-size:200% 100%;animation:shimmer 1.4s linear infinite}
+.dviewer .dvph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s ease}
+.dviewer .dvph img.on.loaded{opacity:1}
+.dmeta{padding:22px 26px;border-top:1px solid var(--line)}
+.dmeta h4{font-size:1.6rem;margin-bottom:6px;transition:opacity .35s}
+.dmeta p{color:var(--muted);margin:0 0 14px;max-width:62ch;transition:opacity .35s}
+.dmeta .fade{opacity:0}
+.dmeta ul{list-style:none;padding:0;margin:0;display:flex;gap:8px;flex-wrap:wrap}
+.dmeta li{background:var(--paper);border:1px solid var(--line);padding:5px 12px;border-radius:99px;font-size:.85rem;font-weight:600;transition:transform .25s,background .25s}
+.dmeta li:hover{transform:translateY(-2px);background:color-mix(in srgb,var(--amber) 10%,var(--paper))}
+/* deliverables */
+.deliv{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:56px}
+.deliv .dcard{border:1px solid var(--line);background:var(--card);padding:24px 22px;border-radius:8px;transition:transform .3s ease,box-shadow .3s ease,border-color .3s}
+.deliv .dcard:hover{transform:translateY(-6px);box-shadow:0 18px 36px #0001;border-color:var(--amber)}
+.deliv .dcard svg{width:40px;height:40px;display:block;margin-bottom:14px;color:var(--amber)}
+.deliv .dcard h4{font:800 1.15rem "Archivo",sans-serif;margin-bottom:6px}
+.deliv .dcard p{margin:0;color:var(--muted);font-size:.93rem;line-height:1.5}
+.dcta{text-align:center;margin-top:42px}
+@media (max-width:900px){.dshow-grid{grid-template-columns:1fr}.deliv{grid-template-columns:repeat(2,1fr)}.dproc{padding-left:52px}.dline{left:22px}.dstep::before{left:-38px}}
+@media (max-width:600px){.deliv{grid-template-columns:1fr}.dproc{padding-left:42px}.dline{left:18px}.dstep::before{left:-32px;width:14px;height:14px}}
+/* projects */
+.dark{background:var(--steel);color:var(--on-dark)}
+.dark .lead{color:#c3ced6}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0}
+.tabs button{background:none;border:1px solid #fff5;color:inherit;padding:8px 18px;border-radius:99px;font:500 .95rem "Public Sans",sans-serif;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:#14232f}
+.track-wrap{overflow:hidden}
+.track{display:flex;gap:22px;transition:transform .5s cubic-bezier(.3,.7,.2,1)}
+.pcard{flex:0 0 calc((100% - 44px)/3);background:var(--card);color:var(--ink);display:flex;flex-direction:column}
+.pcard .ph{position:relative;aspect-ratio:3/2;overflow:hidden}
+.pcard .ph img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.pcard .t{padding:20px 22px 24px}
+.pcard h3{font-size:1.35rem}
+.pcard dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0 0;font-size:.92rem}
+.pcard dt{color:var(--muted)}.pcard dd{margin:0;font-weight:600}
+.pnav{display:flex;gap:10px;margin-top:26px;align-items:center}
+.pnav span{margin-left:auto;font-size:.95rem;opacity:.8}
+/* gallery */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:34px}
+.grid button{padding:0;border:0;background:linear-gradient(90deg,#e2ebf2 25%,#f2f6fa 50%,#e2ebf2 75%);background-size:200% 100%;animation:shimmer 1.4s linear infinite;cursor:zoom-in;position:relative;overflow:hidden;aspect-ratio:1}
+.grid button:nth-child(1),.grid button:nth-child(6){grid-column:span 2;grid-row:span 2}
+.grid img{width:100%;height:100%;display:block;object-fit:cover;object-position:center;opacity:0;transition:opacity .6s ease,transform .5s}
+.grid img.loaded{opacity:1}
+.grid button:hover img.loaded{transform:scale(1.07)}
+.grid em{position:absolute;left:0;bottom:0;right:0;padding:26px 14px 10px;background:linear-gradient(transparent,#000a);color:#fff;font-style:normal;font-weight:600;font-size:.92rem;text-align:left}
+.lb{position:fixed;inset:0;background:#000e;z-index:50;display:none;align-items:center;justify-content:center;padding:24px}
+.lb.on{display:flex}.lb figure{margin:0;max-width:900px;width:100%;color:#fff}
+#lf{position:relative;min-height:200px;background:linear-gradient(90deg,#15263a 25%,#2a4d6a 50%,#15263a 75%);background-size:200% 100%;animation:shimmer 1.4s linear infinite;overflow:hidden}
+#lf img{position:relative;width:100%;height:auto;max-height:72vh;object-fit:contain;background:transparent;opacity:0;transition:opacity .5s ease;display:block}
+#lf img.loaded{opacity:1}.lb figcaption{padding:12px 0;font-weight:600}
+.lb .x{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:18px}
+/* testimonials */
+.quote{max-width:760px;margin:30px auto 0;text-align:center;min-height:190px}
+.quote blockquote{margin:0;font:600 clamp(1.3rem,2.6vw,1.8rem)/1.4 "Archivo",sans-serif;font-stretch:95%}
+.quote cite{display:block;margin-top:18px;color:var(--muted);font-style:normal}
+.qd{display:flex;justify-content:center;gap:8px;margin-top:20px}
+.qd button{width:12px;height:12px;border-radius:50%;border:0;background:var(--line);cursor:pointer;padding:0}
+.qd button.on{background:var(--amber)}
+/* contact */
+.contact{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px}
+.info p{margin:0 0 18px}.info b{display:block;font-family:"Archivo",sans-serif;font-size:1.05rem}
+.info span{color:var(--muted)}
+form{background:var(--card);padding:30px;border:1px solid var(--line);display:grid;gap:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label{font-weight:600;font-size:.92rem;display:grid;gap:6px}
+input,select,textarea{font:inherit;padding:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:2px;width:100%}
+textarea{min-height:120px;resize:vertical}
+.ok{display:none;padding:14px;background:#1d7a4a22;border-left:4px solid #1d7a4a;font-weight:500}
+footer{background:var(--steel);color:#c3ced6;padding:34px 0 calc(34px + env(safe-area-inset-bottom,0px));font-size:.93rem}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:900px){
+.about,.contact{grid-template-columns:1fr}.vals{grid-template-columns:1fr}
+.pcard{flex-basis:calc((100% - 22px)/2)}.grid{grid-template-columns:repeat(2,1fr)}
+.menu{display:block}nav ul{display:none;position:absolute;top:68px;left:0;right:0;flex-direction:column;background:#14232f;padding:18px 22px;gap:16px}
+nav ul.open{display:flex}section{padding:68px 0}}
+@media (max-width:600px){.pcard{flex-basis:100%}.row{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+body,section,.stats div,form,.pcard{transition:background-color .6s,color .6s}
+.mode{margin-left:12px;display:grid;place-items:center;width:38px;height:38px;background:#ffffff14;color:var(--on-dark);border:1px solid #fff4;border-radius:99px;padding:0;cursor:pointer;font-size:1.05rem;line-height:1}
+.mode:hover{border-color:var(--amber)}.mode b{font-size:1.1rem;color:var(--amber);display:grid;place-items:center}
+.mode #mt{display:none}
+html[data-theme="light"] .slide img.bg{filter:brightness(1.05) saturate(1.05)}
+html[data-theme="dark"] .slide img.bg{filter:brightness(.82) saturate(.88)}
+.haz{height:10px;background:repeating-linear-gradient(135deg,var(--amber) 0 14px,#14232f 14px 28px)}
+.bp{background-color:var(--paper);background-image:linear-gradient(rgba(120,140,155,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(120,140,155,.16) 1px,transparent 1px);background-size:36px 36px}
+.live{display:flex;align-items:center;gap:10px;margin:22px 0 30px;padding:10px 16px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--amber);font-weight:500;font-size:.95rem}
+.live i,.pulse{width:10px;height:10px;border-radius:50%;background:#25c46a;flex:none;animation:pl 1.6s infinite}
+@keyframes pl{0%{box-shadow:0 0 0 0 #25c46a88}100%{box-shadow:0 0 0 12px #25c46a00}}
+.og{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.oc{background:var(--card);border:1px solid var(--line);padding:24px;transition:transform .25s,box-shadow .25s}
+.oc:hover{transform:translateY(-4px);box-shadow:0 14px 30px #0002}
+.oc h3{font-size:1.35rem;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.chip{font:600 .75rem "Public Sans",sans-serif;background:#25c46a22;color:#1d8a4e;padding:4px 10px;border-radius:99px;white-space:nowrap}
+.oc p{margin:6px 0 16px;color:var(--muted);font-size:.95rem}
+.bar{height:12px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:repeating-linear-gradient(135deg,var(--amber) 0 10px,#e09a00 10px 20px);transition:width 1.6s cubic-bezier(.2,.8,.2,1)}
+.oc.in .bar i{width:var(--p)}
+.om{display:flex;justify-content:space-between;margin-top:10px;font-size:.9rem;font-weight:600}
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:40;display:flex;flex-direction:column;gap:12px}
+.fab.hide{display:none}
+.fb{width:54px;height:54px;border-radius:50%;border:0;display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 18px #0005;transition:transform .2s;text-decoration:none}
+.fb:hover{transform:scale(1.1)}.fb svg{width:27px;height:27px}
+.fb.call{background:#14232f;box-shadow:0 0 0 2px var(--amber),0 6px 18px #0005}.fb.call svg{fill:#fff}
+.fb.wa{background:#25d366;animation:pl 2s infinite}.fb.bot{background:var(--amber)}.fb.bot svg{fill:#14232f}
+.chat{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:45;width:min(380px,calc(100vw - 32px));height:min(560px,calc(100dvh - 32px - env(safe-area-inset-top,0px)));background:var(--card);border:1px solid var(--line);box-shadow:0 20px 50px #0006;display:none;flex-direction:column;border-radius:10px;overflow:hidden}
+.chat.on{display:flex;animation:rise .35s both}
+.ch{background:#14232f;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px}
+.ch b{font-family:"Archivo",sans-serif;font-size:1.05rem}.ch small{display:block;opacity:.75;font-size:.78rem}.ch button{margin-left:auto;background:none;border:0;color:#fff;font-size:1.2rem;cursor:pointer}
+.cl{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--paper)}
+.m{max-width:85%;padding:10px 13px;background:var(--card);border:1px solid var(--line);border-radius:12px 12px 12px 2px;font-size:.93rem;line-height:1.5}
+.m.me{align-self:flex-end;background:var(--amber);color:#14232f;border:0;border-radius:12px 12px 2px 12px}
+.qr{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px 0}
+.qr button{border:1px solid var(--amber);background:none;color:var(--ink);border-radius:99px;padding:6px 12px;font:500 .83rem "Public Sans",sans-serif;cursor:pointer}
+.qr button:hover{background:var(--amber);color:#14232f}
+.cf{display:flex;gap:8px;padding:12px 14px 8px}.cf input{flex:1}.cf button{padding:0 16px;clip-path:none;border-radius:2px}
+.cw{display:block;margin:0 14px 14px;text-align:center;background:#25d366;color:#fff;font-weight:600;padding:10px;text-decoration:none;border-radius:2px;font-size:.95rem}
+@media (min-width:901px) and (max-width:1080px){nav ul{gap:16px}}
+@media (min-width:1500px){.wrap{max-width:1320px}body{font-size:18px}}
+@media (max-width:900px){.og{grid-template-columns:1fr}nav ul{background:var(--steel)}}
+@media (max-height:520px) and (orientation:landscape){.hero{min-height:max(100svh,440px)}.slide .wrap{padding-top:72px}.slide h1{font-size:clamp(1.8rem,9vh,3rem)}.slide p{margin:10px 0 16px;font-size:1rem}.ctrl{bottom:16px}section{padding:48px 0}.lb img{max-height:58vh}.fb{width:46px;height:46px}.fab{gap:8px}}
+header{background:color-mix(in srgb,var(--steel) 95%,transparent)}
+.slide>div[style*="inset:0"]{background:linear-gradient(90deg,color-mix(in srgb,var(--steel) 92%,transparent) 25%,transparent 88%)!important}
+.haz{background:repeating-linear-gradient(135deg,var(--amber) 0 14px,var(--steel) 14px 28px)}
+.ch,.fb.call{background:var(--steel)}
+.lb{background:color-mix(in srgb,var(--steel) 92%,transparent)}
+.grid em{background:linear-gradient(transparent,color-mix(in srgb,var(--steel) 88%,transparent))}
+</style>
+</head>
+<body>
+<header><div class="wrap nav">
+<a class="logo" href="#home"><i>DS</i>DS Costruction</a>
+<nav aria-label="Main"><button class="menu" aria-expanded="false" id="menu">Menu</button>
+<ul id="links"><li><a href="#about">About us</a></li><li><a href="#design">Design</a></li><li><a href="#projects">Projects</a></li><li><a href="#ongoing">Ongoing</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#contact">Contact us</a></li></ul></nav>
+<button class="mode" id="mode" aria-label="Switch day and night mode"><b id="mi">&#9728;</b><span id="mt"></span></button>
+</div></header>
+
+<main>
+<div class="hero" id="home" aria-roledescription="carousel" aria-label="Featured work">
+<div id="slides"></div>
+<div class="ctrl"><div class="wrap">
+<div class="dots" id="dots"></div>
+<button class="arrow" id="hp" aria-label="Previous slide">&#8592;</button>
+<button class="arrow" id="hn" aria-label="Next slide">&#8594;</button>
+</div></div>
+</div>
+
+<section id="about"><div class="wrap">
+<div class="about">
+<div>
+<h2>Built on trust, finished on time.</h2>
+<p class="lead" style="margin-top:20px">DS Costruction is a full-service construction company delivering residential, commercial and infrastructure projects. From the first site survey to the final handover, one accountable team plans, builds and inspects every stage.</p>
+<p>Our engineers, site supervisors and craftspeople work to clear schedules, transparent budgets and strict safety standards, so you always know where your project stands.</p>
+<p><a class="btn" href="#contact" style="margin-top:8px">Request a quote</a></p>
+</div>
+<div class="stats">
+<div><b>15+</b><span>Years of experience</span></div>
+<div><b>250+</b><span>Projects completed</span></div>
+<div><b>120</b><span>Skilled team members</span></div>
+<div><b>98%</b><span>Delivered on schedule</span></div>
+</div>
+</div>
+<div class="vals">
+<div><h3>Quality first</h3><p>Certified materials and stage-wise inspections on every build.</p></div>
+<div><h3>Safety always</h3><p>Site protocols, trained crews and protective equipment, without exception.</p></div>
+<div><h3>Clear communication</h3><p>Weekly progress reports and one point of contact from start to handover.</p></div>
+</div>
+</div></section>
+
+<section id="design" class="bp"><div class="wrap">
+<h2>Customized architecture design</h2>
+<p class="lead" style="margin-top:14px">Every brief becomes a tailored design — your site, your light, your way of living, translated into drawings and 3D walkthroughs you can sign off before we pour a single footing.</p>
+
+<div class="dproc" id="dproc">
+<div class="dline" aria-hidden="true"></div>
+<div class="dstep" data-i="0">
+<span class="dnum">01 · Discovery</span>
+<h3>Site study and brief</h3>
+<p>We walk the site with you, study orientation, soil, light, views and local regulations, then capture how you actually want to live or work in the space. The output is a written brief and a measured site plan.</p>
+</div>
+<div class="dstep" data-i="1">
+<span class="dnum">02 · Concept</span>
+<h3>Massing and concept design</h3>
+<p>Two or three concept directions — floor plans, sections and rough massing — are presented in a single workshop. You pick a direction (or a hybrid) and we lock the concept before drawing anything detailed.</p>
+</div>
+<div class="dstep" data-i="2">
+<span class="dnum">03 · 3D visualization</span>
+<h3>Walkthrough and material palette</h3>
+<p>The chosen concept is built in 3D with realistic light and materials. You walk through every room, lift ceilings, move walls and approve the finish palette — timber, stone, paint chips and hardware — long before construction starts.</p>
+</div>
+<div class="dstep" data-i="3">
+<span class="dnum">04 · Documentation</span>
+<h3>Working drawings and BOQ</h3>
+<p>Structural, MEP, joinery and finishing drawings are issued for tender, with a bill of quantities and a fixed-price build quote from our construction team. One set of documents, one accountable team.</p>
+</div>
+<div class="dstep" data-i="4">
+<span class="dnum">05 · Handover to build</span>
+<h3>Seamless transition to construction</h3>
+<p>The same team that designed your project builds it. The architect stays on through execution, answering RFIs and approving shop drawings, so what you approved in 3D is what you get keys to.</p>
+</div>
+</div>
+
+<div class="dshow">
+<h3>Pick a style to explore</h3>
+<div class="dshow-grid">
+<div class="dtabs" id="dtabs" role="tablist" aria-label="Architecture styles"></div>
+<div class="dviewer">
+<div class="dvph" id="dvph"></div>
+<div class="dmeta">
+<h4 id="dvh">Modern</h4>
+<p id="dvp">Clean lines, generous glazing and a restrained material palette — light-filled volumes that feel calm and timeless.</p>
+<ul id="dvl"></ul>
+</div>
+</div>
+</div>
+</div>
+
+<div class="deliv">
+<div class="dcard">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-7h6v7"/></svg>
+<h4>3D renders</h4>
+<p>Photoreal interior and exterior views of every key room, day and night.</p>
+</div>
+<div class="dcard">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="1"/><path d="M3 8h18M7 4v14M11 4v14M15 4v14M19 4v14"/></svg>
+<h4>Working drawings</h4>
+<p>Plans, sections, elevations, MEP and joinery details issued for tender.</p>
+</div>
+<div class="dcard">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v6H4zM4 14h16v6H4z"/><path d="M7 7h2M7 17h2"/></svg>
+<h4>BOQ & cost plan</h4>
+<p>Item-wise bill of quantities with a fixed-price build quote from our team.</p>
+</div>
+<div class="dcard">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z" fill="currentColor" stroke="none"/></svg>
+<h4>Walkthrough video</h4>
+<p>A 60-second narrated fly-through of your project to share with stakeholders.</p>
+</div>
+</div>
+
+<p class="dcta"><a class="btn" href="#contact">Start your design brief</a></p>
+</div></section>
+
+<section id="projects" class="dark"><div class="wrap">
+<h2>Our projects</h2>
+<p class="lead" style="margin-top:14px">A selection of recent work across residential, commercial and infrastructure sectors.</p>
+<div class="tabs" id="tabs" role="group" aria-label="Filter projects"></div>
+<div class="track-wrap"><div class="track" id="track"></div></div>
+<div class="pnav"><button class="arrow" id="pp" aria-label="Previous projects">&#8592;</button><button class="arrow" id="pn" aria-label="Next projects">&#8594;</button><span id="pc"></span></div>
+</div></section>
+
+<div class="haz"></div>
+<section id="ongoing" class="bp"><div class="wrap">
+<h2>Ongoing projects</h2>
+<p class="lead" style="margin-top:14px">Live progress from our active sites, updated by our site engineers.</p>
+<div class="live" aria-live="polite"><i></i><span id="lv"></span></div>
+<div class="og" id="og"></div>
+</div></section>
+
+<section id="gallery"><div class="wrap">
+<h2>Gallery</h2>
+<p class="lead" style="margin-top:14px">Select any image to view it larger.</p>
+<div class="grid" id="grid"></div>
+</div></section>
+
+<section style="background:var(--card)"><div class="wrap">
+<h2 style="text-align:center">What our clients say</h2>
+<div class="quote" aria-live="polite"><blockquote id="qt"></blockquote><cite id="qc"></cite></div>
+<div class="qd" id="qd"></div>
+</div></section>
+
+<section id="contact"><div class="wrap contact">
+<div class="info">
+<h2 style="margin-bottom:26px">Contact us</h2>
+<p class="lead">Tell us about your project. We reply within one working day with next steps.</p>
+<p style="margin-top:26px"><b>Office</b><span>Your office address, City, State, India</span></p>
+<p><b>Phone and WhatsApp</b><span><a href="tel:+919000000000">+91 90000 00000</a> · <a id="wc" href="#" target="_blank" rel="noopener">Chat on WhatsApp</a></span></p>
+<p><b>Email</b><span>info@dscostruction.example</span></p>
+<p><b>Hours</b><span>Monday to Saturday, 9:00 am to 6:00 pm</span></p>
+</div>
+<form id="f" novalidate>
+<div class="row"><label>Full name<input name="n" required autocomplete="name"></label><label>Phone<input name="p" type="tel" autocomplete="tel"></label></div>
+<label>Email<input name="e" type="email" required autocomplete="email"></label>
+<label>Project type<select name="t"><option>Residential building</option><option>Commercial building</option><option>Infrastructure</option><option>Renovation</option></select></label>
+<label>Project details<textarea name="m" required></textarea></label>
+<button class="btn" type="submit">Send enquiry</button>
+<div class="ok" id="ok" role="status"></div>
+</form>
+</div></section>
+</main>
+
+<footer><div class="wrap"><span>&copy; 2026 DS Costruction. All rights reserved.</span><span>Licensed &amp; insured contractor</span></div></footer>
+
+<div class="fab" id="fab">
+<a class="fb call" href="tel:+919000000000" aria-label="Call DS Costruction"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.25 11 11 0 003.5.56 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.2.2 2.4.56 3.5a1 1 0 01-.25 1z"/></svg></a>
+<a class="fb wa" id="wab" href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><svg viewBox="0 0 24 24"><path fill="#fff" d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2z"/><path fill="#25d366" transform="translate(6.2 6.2) scale(.5)" d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.25 11 11 0 003.5.56 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.2.2 2.4.56 3.5a1 1 0 01-.25 1z"/></svg></a>
+<button class="fb bot" id="bot" aria-label="Open chat assistant" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 012 2v11a2 2 0 01-2 2H9l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2zm3 6a1.3 1.3 0 100 2.6A1.3 1.3 0 007 9zm5 0a1.3 1.3 0 100 2.6A1.3 1.3 0 0012 9zm5 0a1.3 1.3 0 100 2.6A1.3 1.3 0 0017 9z"/></svg></button>
+</div>
+<div class="chat" id="chat" role="dialog" aria-label="DS Costruction chat assistant">
+<div class="ch"><span class="pulse"></span><div><b>DS Costruction assistant</b><small>Replies instantly · team on WhatsApp</small></div><button id="cx" aria-label="Close chat">&#10005;</button></div>
+<div class="cl" id="clog" aria-live="polite"></div>
+<div class="qr" id="qr"></div>
+<form class="cf" id="cf"><input id="ci" placeholder="Type your question" aria-label="Your message" autocomplete="off"><button class="btn" type="submit">Send</button></form>
+<a class="cw" id="cw" href="#" target="_blank" rel="noopener">Continue on WhatsApp</a>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Image viewer"><button class="arrow x" id="lx" aria-label="Close">&#10005;</button><figure><div id="lf"></div><figcaption id="lc"></figcaption></figure></div>
+
+<script>
+const $=s=>document.querySelector(s);
+
+/* Real construction photos (sourced from public web image search, re-hosted on a stable CDN) */
+const IMG={
+ residential:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/925757657016.jpg",
+ residentialWide:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/3a0a2df6952b.jpg",
+ residentialAlt:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/3686e67bb46e.jpeg",
+ commercial:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/18b15c7552ab.jpeg",
+ commercialAlt:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/ddd00d53260d.jpg",
+ commercialTower:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/b52a5966770b.jpg",
+ bridge:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/594af305041b.jpg",
+ bridgeAlt:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/032006719092.jpg",
+ bridgeWide:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/3a4dad34ce14.jpg",
+ villa:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/a9e19619c8b1.jpg",
+ villaAlt:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/75379e155307.jpg",
+ heritage:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/070c3a5c374d.jpeg",
+ heritageAlt:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/bb96424c0c52.jpg",
+ heritageWide:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/13e7f179e00f.jpg",
+ industrial:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/89241f08aea8.png",
+ site:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/75ba49af2cf3.jpg",
+ siteAlt:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/8ffc0cfdf5fc.jpg",
+ facade:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/c004272ef8e0.jpg",
+ facadeAlt:"https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/196e7ddbd591.png"
+};
+
+const P=[
+ {n:"Lakeview Residency",k:"Residential",loc:"Eastern region",y:"2025",a:"84 apartments",img:IMG.residential},
+ {n:"Meridian Business Park",k:"Commercial",loc:"Central business district",y:"2024",a:"210,000 sq ft",img:IMG.commercial},
+ {n:"Riverside Bridge",k:"Infrastructure",loc:"State highway 12",y:"2024",a:"420 m span",img:IMG.bridge},
+ {n:"Heritage Villa Restoration",k:"Renovation",loc:"Old town",y:"2023",a:"12,500 sq ft",img:IMG.heritage},
+ {n:"Greenfield Villas",k:"Residential",loc:"Northern outskirts",y:"2023",a:"36 villas",img:IMG.villa},
+ {n:"Summit Corporate Tower",k:"Commercial",loc:"Tech corridor",y:"2026",a:"22 floors",img:IMG.commercialTower}
+];
+
+/* hero carousel */
+const S=[
+ {h:"We build what lasts.",p:"Residential, commercial and infrastructure construction delivered with engineering precision.",img:IMG.residentialWide},
+ {h:"From foundation to finish.",p:"One accountable team managing design, build and handover on schedule and on budget.",img:IMG.commercial},
+ {h:"Strong structures, safe sites.",p:"Certified materials, trained crews and stage-wise inspections on every project.",img:IMG.bridge}
+];
+$("#slides").innerHTML=S.map((x,i)=>`<div class="slide${i?"":" on"}" role="group" aria-roledescription="slide" aria-label="${i+1} of ${S.length}"><img class="bg" src="${x.img}" alt="" aria-hidden="true" fetchpriority="high" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded','err')"><div style="position:absolute;inset:0;background:linear-gradient(90deg,#0d1b25ee 20%,#0d1b2500 80%)"></div><div class="wrap"><h1>${x.h}</h1><p>${x.p}</p><div class="cta"><a class="btn" href="#projects">View projects</a><a class="btn ghost" href="#contact">Get a quote</a></div></div></div>`).join("");
+$("#dots").innerHTML=S.map((_,i)=>`<button aria-label="Go to slide ${i+1}"></button>`).join("");
+let hi=0,ht;const sl=[...document.querySelectorAll(".slide")],dt=[...document.querySelectorAll("#dots button")];
+function hs(i){hi=(i+S.length)%S.length;sl.forEach((e,j)=>e.classList.toggle("on",j===hi));dt.forEach((e,j)=>{e.classList.remove("on");void e.offsetWidth;e.classList.toggle("on",j===hi)});clearTimeout(ht);if(!matchMedia("(prefers-reduced-motion:reduce)").matches)ht=setTimeout(()=>hs(hi+1),6000)}
+dt.forEach((d,i)=>d.onclick=()=>hs(i));$("#hp").onclick=()=>hs(hi-1);$("#hn").onclick=()=>hs(hi+1);hs(0);
+
+/* projects carousel */
+let flt="All",pi=0;
+const kinds=["All",...new Set(P.map(p=>p.k))];
+$("#tabs").innerHTML=kinds.map(k=>`<button aria-pressed="${k==="All"}" data-k="${k}">${k}</button>`).join("");
+function per(){return innerWidth<=600?1:innerWidth<=900?2:3}
+function rp(){const L=P.filter(p=>flt==="All"||p.k===flt);
+ $("#track").innerHTML=L.map(p=>`<article class="pcard"><div class="ph sk light"><img src="${p.img}" alt="${p.n} — ${p.k} project by DS Costruction" loading="lazy" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded','err')"></div><div class="t"><h3>${p.n}</h3><dl><dt>Type</dt><dd>${p.k}</dd><dt>Area</dt><dd>${p.a}</dd><dt>Location</dt><dd>${p.loc}</dd><dt>Completed</dt><dd>${p.y}</dd></dl></div></article>`).join("");
+ pi=Math.min(pi,Math.max(0,L.length-per()));mv(L)}
+function mv(L){L=L||P.filter(p=>flt==="All"||p.k===flt);const w=$(".pcard").offsetWidth+22;$("#track").style.transform=`translateX(${-pi*w}px)`;$("#pc").textContent=`${Math.min(pi+per(),L.length)} of ${L.length}`}
+function pm(d){const n=P.filter(p=>flt==="All"||p.k===flt).length;pi=Math.max(0,Math.min(n-per(),pi+d));mv()}
+$("#pp").onclick=()=>pm(-1);$("#pn").onclick=()=>pm(1);addEventListener("resize",()=>pm(0));
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{flt=b.dataset.k;pi=0;document.querySelectorAll("#tabs button").forEach(x=>x.setAttribute("aria-pressed",x===b));rp()});
+rp();
+
+/* customized architecture design — process + style showcase */
+const DS=[
+ {name:"Modern",tag:"Clean lines · glass · concrete",img:IMG.commercialTower,desc:"Clean lines, generous glazing and a restrained material palette — light-filled volumes that feel calm and timeless.",features:["Large glazing","Exposed concrete","Cantilevered volumes","Open plan"]},
+ {name:"Contemporary Indian",tag:"Brick · jaali · courtyard",img:IMG.heritageWide,desc:"Regional materials and craft reinterpreted for today — brick jaali screens, shaded courtyards and deep verandas that breathe with the climate.",features:["Brick jaali","Central courtyard","Deep verandas","Local stone"]},
+ {name:"Industrial",tag:"Steel · deck · skylights",img:IMG.industrial,desc:"Honest structure expressed — exposed steel, metal deck roofs and north-light skylights for workshops, studios and live-work spaces.",features:["Exposed steel","North-light skylights","Metal deck","Polished concrete"]},
+ {name:"Tropical green",tag:"Cross-vent · shading · green roof",img:IMG.villaAlt,desc:"Passive cooling first — cross-ventilation, deep overhangs, green roofs and rain-water recycling tuned to the local micro-climate.",features:["Cross-ventilation","Green roof","Rainwater harvesting","Solar-ready"]},
+ {name:"Villa & bungalow",tag:"Private · landscape · pool",img:IMG.villa,desc:"Low-rise residences that open to landscape — private courtyards, plunge pools and seamless indoor-outdoor flow.",features:["Private courtyard","Plunge pool","Landscape integration","Outdoor kitchen"]}
+];
+$("#dtabs").innerHTML=DS.map((s,i)=>`<button role="tab" aria-pressed="${i===0}" data-i="${i}"><span class="ph"><img src="${s.img}" alt="${s.name} style reference" loading="lazy" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded','err')"></span><span class="lab"><b>${s.name}</b><small>${s.tag}</small></span></button>`).join("");
+$("#dvph").innerHTML=DS.map((s,i)=>`<img src="${s.img}" alt="${s.name}" data-i="${i}" class="${i===0?"on":""}" loading="${i===0?"eager":"lazy"}" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded','err')">`).join("");
+let dsi=0,dvfade;
+function pickStyle(i){
+ dsi=i;
+ document.querySelectorAll("#dtabs button").forEach((b,j)=>b.setAttribute("aria-pressed",j===i));
+ document.querySelectorAll("#dvph img").forEach((im,j)=>im.classList.toggle("on",j===i));
+ const s=DS[i],h=$("#dvh"),p=$("#dvp"),ul=$("#dvl");
+ h.classList.add("fade");p.classList.add("fade");
+ clearTimeout(dvfade);
+ dvfade=setTimeout(()=>{
+  h.textContent=s.name;p.textContent=s.desc;
+  ul.innerHTML=s.features.map(f=>`<li>${f}</li>`).join("");
+  h.classList.remove("fade");p.classList.remove("fade");
+ },220);
+}
+document.querySelectorAll("#dtabs button").forEach(b=>b.onclick=()=>pickStyle(+b.dataset.i));
+pickStyle(0);
+/* staggered fade-in for steps + progress line fill */
+const dproc=$("#dproc"),dsteps=[...document.querySelectorAll(".dstep")];
+const dio=new IntersectionObserver(es=>es.forEach(e=>{
+ if(e.isIntersecting){
+  dproc.classList.add("in");
+  dsteps.forEach((s,j)=>setTimeout(()=>s.classList.add("in"),j*180));
+  dio.disconnect();
+ }
+}),{threshold:.2});
+dio.observe(dproc);
+if(matchMedia("(prefers-reduced-motion:reduce)").matches){dproc.classList.add("in");dsteps.forEach(s=>s.classList.add("in"))}
+
+/* gallery + lightbox */
+const G=[
+ {n:"Lakeview Residency",k:"Residential",img:IMG.residentialAlt},
+ {n:"Meridian Business Park",k:"Commercial",img:IMG.commercialAlt},
+ {n:"Riverside Bridge",k:"Infrastructure",img:IMG.bridgeAlt},
+ {n:"Heritage Villa Restoration",k:"Renovation",img:IMG.heritageAlt},
+ {n:"Greenfield Villas",k:"Residential",img:IMG.villaAlt},
+ {n:"Industrial Shed, Greenfield",k:"Commercial",img:IMG.industrial},
+ {n:"Active site — tower crane",k:"Infrastructure",img:IMG.site},
+ {n:"Facade works in progress",k:"Renovation",img:IMG.facade}
+];
+$("#grid").innerHTML=G.map((p,i)=>`<button data-i="${i}" aria-label="View ${p.n}"><img src="${p.img}" alt="${p.n}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded','err')"><em>${p.n}</em></button>`).join("");
+document.querySelectorAll("#grid button").forEach(b=>b.onclick=()=>{const p=G[b.dataset.i];$("#lf").innerHTML=`<img src="${p.img}" alt="${p.n}" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded','err')">`;$("#lc").textContent=p.n+" · "+p.k;$("#lb").classList.add("on");$("#lx").focus()});
+const cl=()=>$("#lb").classList.remove("on");$("#lx").onclick=cl;$("#lb").onclick=e=>{if(e.target.id==="lb")cl()};addEventListener("keydown",e=>{if(e.key==="Escape")cl()});
+
+/* testimonials */
+const Q=[["DS Costruction handed over our apartment block two weeks early, and the finish quality matched every drawing.","Anil Mehra, residential developer"],["Their site team kept us informed every week. No surprises on cost or schedule.","Priya Sen, operations head, Meridian Park"],["Safety discipline on the bridge project was the best we have seen from a contractor.","R. Banerjee, project engineer, state works dept."]];
+let qi=0,qt;$("#qd").innerHTML=Q.map((_,i)=>`<button aria-label="Testimonial ${i+1}"></button>`).join("");
+const qb=[...document.querySelectorAll("#qd button")];
+function sq(i){qi=i;$("#qt").textContent="“"+Q[i][0]+"”";$("#qc").textContent=Q[i][1];qb.forEach((b,j)=>b.classList.toggle("on",j===i));clearTimeout(qt);qt=setTimeout(()=>sq((i+1)%Q.length),7000)}
+qb.forEach((b,i)=>b.onclick=()=>sq(i));sq(0);
+
+/* nav + form */
+$("#menu").onclick=()=>{const o=$("#links").classList.toggle("open");$("#menu").setAttribute("aria-expanded",o)};
+$("#links").onclick=e=>{if(e.target.tagName==="A")$("#links").classList.remove("open")};
+$("#f").onsubmit=e=>{e.preventDefault();const f=e.target,ok=$("#ok");
+ if(!f.n.value.trim()||!f.e.value.includes("@")||!f.m.value.trim()){ok.style.display="block";ok.style.background="#b0262622";ok.style.borderColor="#b02626";ok.textContent="Enter your name, a valid email and project details, then send again.";return}
+ ok.style.display="block";ok.style.background="#1d7a4a22";ok.style.borderColor="#1d7a4a";ok.textContent="Thanks, "+f.n.value.trim()+". Your enquiry is ready. Please connect this form to your email or CRM to receive it.";f.reset()};
+
+/* IST day and night mode */
+const TZ={timeZone:"Asia/Kolkata"};
+function ist(){const d=new Date(),t=d.toLocaleTimeString("en-GB",{...TZ,hour:"2-digit",minute:"2-digit"}),wd=d.toLocaleDateString("en-US",{...TZ,weekday:"short"});const h=+t.slice(0,2);return{h,t,wd,label:h>=5&&h<12?"Morning":h<17&&h>=12?"Afternoon":h>=17&&h<21?"Evening":"Night",mode:h>=6&&h<18?"light":"dark"}}
+let ov=null;
+function th(){const n=ist(),m=ov||n.mode;document.documentElement.dataset.theme=m;$("#mi").innerHTML=m==="light"?"&#9728;":"&#9790;"}
+$("#mode").onclick=()=>{ov=ov?null:(ist().mode==="light"?"dark":"light");th()};th();setInterval(th,30000);
+
+/* ongoing projects */
+const O=[["Lakeview Residency Phase 2","Structure: 7th floor slab",72,"Dec 2026","140 crew","On track"],["Summit Corporate Tower","Facade and core works",58,"Aug 2027","210 crew","On track"],["Riverside Bridge Approach","Piling and pier caps",41,"Mar 2027","96 crew","Ahead"],["Greenfield Industrial Shed","Steel erection",86,"Jan 2027","64 crew","Ahead"]];
+$("#og").innerHTML=O.map(o=>`<article class="oc" style="--p:${o[2]}%"><h3>${o[0]}<span class="chip">${o[5]}</span></h3><p>${o[1]}</p><div class="bar" role="progressbar" aria-valuenow="${o[2]}" aria-valuemin="0" aria-valuemax="100" aria-label="${o[0]} progress"><i></i></div><div class="om"><span>${o[2]}% complete</span><span>${o[4]} · Due ${o[3]}</span></div></article>`).join("");
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.3});document.querySelectorAll(".oc").forEach(c=>io.observe(c));
+const LV=["Lakeview: 7th floor slab casting in progress","Summit Tower: facade panels arriving on site","Riverside Bridge: pier cap P3 reinforcement inspected","Greenfield Shed: roof sheeting starts this week"];let li=0;function lv(){$("#lv").textContent=LV[li++%LV.length]}lv();setInterval(lv,4500);
+
+/* chatbot + WhatsApp */
+const WA="919000000000",L=$("#clog");let said=[];
+function wl(){const t=said.length?"Hello DS Costruction, I would like to discuss: "+said.join("; "):"Hello DS Costruction, I would like to know more about your construction services.";const u="https://wa.me/"+WA+"?text="+encodeURIComponent(t);["#wab","#cw","#wc"].forEach(s=>$(s).href=u)}
+function say(t,me){const d=document.createElement("div");d.className="m"+(me?" me":"");d.textContent=t;L.append(d);L.scrollTop=L.scrollHeight}
+function ans(q){q=q.toLowerCase();
+ if(/quote|price|cost|estimate|budget/.test(q))return"For an estimate, share your project type, location and approximate size. Tap Continue on WhatsApp or use the contact form, and our team will respond within one working day.";
+ if(/service|build|residential|commercial|infra|renovat/.test(q))return"We handle residential buildings, commercial complexes, industrial sheds, infrastructure such as bridges and roads, and renovations.";
+ if(/ongoing|status|progress|current/.test(q))return"We have four active sites right now, between 41% and 86% complete. See live progress in the Ongoing projects section.";
+ if(/hour|time|open|close/.test(q)){const n=ist(),o=n.wd!=="Sun"&&n.h>=9&&n.h<18;return"We are open Monday to Saturday, 9:00 am to 6:00 pm IST. It is "+n.t+" in India, so we are "+(o?"open now.":"closed now. Leave a message on WhatsApp and we will reply when we open.")}
+ if(/call|phone|number|contact|address|office|where/.test(q))return"You can call +91 90000 00000 using the call button, or message us on WhatsApp. Full details are in the Contact us section.";
+ return"Thanks for your message. I have noted it. Tap Continue on WhatsApp and our team will answer you directly."}
+function ask(q){say(q,1);said.push(q);wl();setTimeout(()=>say(ans(q)),450)}
+$("#qr").innerHTML=["Get a quote","Our services","Ongoing projects","Working hours"].map(x=>`<button type="button">${x}</button>`).join("");
+document.querySelectorAll("#qr button").forEach(b=>b.onclick=()=>ask(b.textContent));
+$("#cf").onsubmit=e=>{e.preventDefault();const v=$("#ci").value.trim();if(v){ask(v);$("#ci").value=""}};
+function chat(o){$("#chat").classList.toggle("on",o);$("#fab").classList.toggle("hide",o);$("#bot").setAttribute("aria-expanded",o);if(o)$("#ci").focus()}
+$("#bot").onclick=()=>chat(true);$("#cx").onclick=()=>chat(false);
+say("Hello! I am the DS Costruction assistant. "+(ist().label==="Night"?"How can I help you?":"Good "+ist().label.toLowerCase()+"! How can I help you?"));wl();
+</script>
+</body>
+</html>
