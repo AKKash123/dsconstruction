@@ -1,0 +1,17 @@
+# Environment / Local settings
+.env
+*.local
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# SQLite temp files
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# VS Code / IDE
+.vscode/
+.idea/
